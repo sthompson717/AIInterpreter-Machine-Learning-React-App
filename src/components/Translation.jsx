@@ -20,7 +20,7 @@ export default function Translation(props) {
                         })}
 
                     </select>
-                    <button onClick={generateTranslation} className='specialBtn px-3 py-2 rounded-lg text-green-400 hover:text-green-600 duration-200'>Translate</button>
+                    <button onClick={generateTranslation} className='button px-3 py-2 rounded-lg text-green-400 hover:text-green-600 duration-200'>Translate</button>
                 </div>
             </div>)}
         </>

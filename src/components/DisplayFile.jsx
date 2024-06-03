@@ -1,16 +1,17 @@
 import React, { useRef, useEffect } from 'react'
 
 export default function DisplayFile(props) {
-    const { handleAudioReset, file, audioStream, handleFormSubmission } = props
+    const { audioStream, file, handleAudioReset, handleFormSubmission } = props
     const audioRef = useRef()
 
+    // creates URL object for audio files
     useEffect(() => {
         if (!file && !audioStream) { return }
         if (file) {
-            console.log('HERE FILE', file)
+            console.log('FILE', file)
             audioRef.current.src = URL.createObjectURL(file)
         } else {
-            console.log('EHER AUDIO', audioStream)
+            console.log('RECORDING', audioStream)
             audioRef.current.src = URL.createObjectURL(audioStream)
         }
     }, [audioStream, file])
@@ -30,7 +31,7 @@ export default function DisplayFile(props) {
             </div>
             <div className='flex items-center justify-between gap-4'>
                 <button onClick={handleAudioReset} className='text-slate-400 hover:text-green-600 duration-200'>Reset</button>
-                <button onClick={handleFormSubmission} className='specialBtn  px-3 p-2 rounded-lg text-green-400 flex items-center gap-2 font-medium '>
+                <button onClick={handleFormSubmission} className='button  px-3 p-2 rounded-lg text-green-400 flex items-center gap-2 font-medium '>
                     <p>Upload</p>
                     <i className="fa-solid fa-file-arrow-up"></i>
                 </button>

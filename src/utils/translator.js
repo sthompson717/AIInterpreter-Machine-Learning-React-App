@@ -1,13 +1,16 @@
 import { pipeline, env } from '@xenova/transformers';
 
+// fixes error caused by running local models
 env.allowLocalModels = false;
 env.useBrowserCache = false;
 
-class MyTranslationPipeline {
+// class for transcriber pipeline
+class TranslatorInstance {
     static task = 'translation';
     static model = 'Xenova/nllb-200-distilled-600M';
+    
+    // only creates new instance if one does not already exist
     static instance = null;
-
     static async getInstance(progress_callback = null) {
         if (this.instance === null) {
             this.instance = pipeline(this.task, this.model, { progress_callback });

@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react'
 import Transcription from './Transcription'
 import Translation from './Translation'
 
-export default function Information(props) {
-    const { output, finished, handleAudioReset } = props
+export default function DisplayText(props) {
+    const { output, finished } = props
     const [tab, setTab] = useState('transcription')
     const [translation, setTranslation] = useState(null)
     const [toLanguage, setToLanguage] = useState('Select language')
@@ -13,8 +13,9 @@ export default function Information(props) {
     const worker = useRef()
 
     useEffect(() => {
+        // new worker if one does not exist
         if (!worker.current) {
-            worker.current = new Worker(new URL('../utils/translate.worker.js', import.meta.url), {
+            worker.current = new Worker(new URL('../utils/translator.js', import.meta.url), {
                 type: 'module'
             })
         }
@@ -45,10 +46,12 @@ export default function Information(props) {
 
     const textElement = tab === 'transcription' ? output.map(val => val.text) : translation || ''
 
+    // copies text to clipboard
     function handleCopy() {
         navigator.clipboard.writeText(textElement)
     }
 
+    // creates url object for text file to be downloaded
     function handleDownload() {
         const element = document.createElement("a")
         const file = new Blob([textElement], { type: 'text/plain' })
@@ -58,6 +61,7 @@ export default function Information(props) {
         element.click()
     }
 
+    // translation function
     function generateTranslation() {
         if (translating || toLanguage === 'Select language') {
             return
@@ -80,8 +84,8 @@ export default function Information(props) {
             <h1 className='font-semibold text-4xl sm:text-5xl md:text-6xl whitespace-nowrap'>AI<span className='text-green-400 bold'>Interpreter</span></h1>
 
             <div className='grid grid-cols-2 sm:mx-auto bg-white  rounded overflow-hidden items-center p-1 greenShadow border-[2px] border-solid border-green-400'>
-                <button onClick={() => setTab('transcription')} className={'px-4 rounded duration-200 py-1 ' + (tab === 'transcription' ? ' bg-green-400 text-white' : ' text-green-400 hover:text-green-600')}>Original</button>
-                <button onClick={() => setTab('translation')} className={'px-4 rounded duration-200 py-1  ' + (tab === 'translation' ? ' bg-green-400 text-white' : ' text-green-400 hover:text-green-600')}>Translation</button>
+                <button onClick={() => setTab('transcription')} className={'px-4 rounded duration-200 py-1 ' + (tab === 'transcription' ? ' bg-green-400 text-white' : ' text-slate-400 hover:text-slate-600')}>Original</button>
+                <button onClick={() => setTab('translation')} className={'px-4 rounded duration-200 py-1  ' + (tab === 'translation' ? ' bg-green-400 text-white' : ' text-slate-400 hover:text-slate-600')}>Translation</button>
             </div>
             <div className='my-8 flex flex-col-reverse max-w-prose w-full mx-auto gap-4'>
                 {(!finished || translating) && (
@@ -95,7 +99,7 @@ export default function Information(props) {
                     <Translation {...props} toLanguage={toLanguage} translating={translating} textElement={textElement} setTranslating={setTranslating} setTranslation={setTranslation} setToLanguage={setToLanguage} generateTranslation={generateTranslation} />
                 )}
             </div>
-            <a href="/"><div className='text-slate-400 hover:text-slate-600 duration-200'>Try again</div></a>
+            <a href="/"><div className='text-slate-400 hover:text-slate-600 duration-200'>Retry?</div></a>
             <div className='flex items-center gap-4 mx-auto '>
                 <button onClick={handleCopy} title="Copy" className='bg-white  hover:text-green-500 duration-200 text-green-300 px-2 aspect-square grid place-items-center rounded'>
                     <i className="fa-solid fa-copy"></i>

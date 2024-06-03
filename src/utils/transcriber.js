@@ -2,14 +2,17 @@
 import { pipeline, env } from '@xenova/transformers'
 import { MessageTypes } from './presets'
 
+// fixes error caused by running local models
 env.allowLocalModels = false;
 env.useBrowserCache = false;
 
-class MyTranscriptionPipeline {
+// class for transcriber pipeline
+class TranscriberInstance {
     static task = 'automatic-speech-recognition'
-    static model = 'openai/whisper-tiny.en'
+    static model = 'Xenova/whisper-tiny.en'
+    
+    // only creates new instance if one does not already exist
     static instance = null
-
     static async getInstance(progress_callback = null) {
         if (this.instance === null) {
             this.instance = await pipeline(this.task, null, { progress_callback })
@@ -19,20 +22,14 @@ class MyTranscriptionPipeline {
     }
 }
 
-self.addEventListener('message', async (event) => {
-    const { type, audio } = event.data
-    if (type === MessageTypes.INFERENCE_REQUEST) {
-        await transcribe(audio)
-    }
-})
-
+// transcription function
 async function transcribe(audio) {
     sendLoadingMessage('loading')
-
-    let pipeline = await MyTranscriptionPipeline.getInstance(load_model_callback)
+    
+    let pipeline
 
     try {
-        // pipeline = await MyTranscriptionPipeline.getInstance(load_model_callback)
+        pipeline = await TranscriberInstance.getInstance(load_model_callback)
     } catch (err) {
         console.log(err.message)
     }
@@ -54,6 +51,15 @@ async function transcribe(audio) {
     generationTracker.sendFinalResult()
 }
 
+self.addEventListener('message', async (event) => {
+    const { type, audio } = event.data
+    if (type === MessageTypes.INFERENCE_REQUEST) {
+        await transcribe(audio)
+    }
+})
+
+
+
 async function load_model_callback(data) {
     const { status } = data
     if (status === 'progress') {
@@ -62,6 +68,7 @@ async function load_model_callback(data) {
     }
 }
 
+// sends loading status message to app
 function sendLoadingMessage(status) {
     self.postMessage({
         type: MessageTypes.LOADING,
@@ -79,6 +86,7 @@ async function sendDownloadingMessage(file, progress, loaded, total) {
     })
 }
 
+// 
 class GenerationTracker {
     constructor(pipeline, stride_length_s) {
         this.pipeline = pipeline
